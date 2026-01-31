@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FABM Accounting Quiz</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #eef2ff;
+    padding: 20px;
+}
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+}
+h1 {
+    text-align: center;
+    color: #1e3a8a;
+}
+input, select, button {
+    padding: 8px;
+    margin: 6px 0;
+    width: 100%;
+}
+.question {
+    margin-top: 20px;
+    font-weight: bold;
+}
+.options label {
+    display: block;
+    margin: 5px 0;
+}
+button {
+    background: #1d4ed8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+button:hover {
+    background: #2563eb;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>FABM Accounting Quiz</h1>
+
+<label>Student Name:</label>
+<input type="text" id="studentName" required>
+
+<label>Section:</label>
+<input type="text" id="section" required>
+
+<label>Grade Level:</label>
+<select id="level">
+    <option value="">Select</option>
+    <option value="11">Grade 11</option>
+    <option value="12">Grade 12</option>
+</select>
+
+<div id="quiz"></div>
+
+<button onclick="submitQuiz()">Submit Quiz</button>
+<div id="result"></div>
+</div>
+
+<script>
+const quizData = {
+11: [
+ {q:"Accounting is best defined as:", o:["Recording profits only","Identifying and recording financial transactions","Managing employees"], a:1},
+ {q:"Who uses accounting information?", o:["Owners","Managers","All of the above"], a:2},
+ {q:"Accounting helps in decision making.", o:["True","False"], a:0},
+ {q:"Which business is owned by one person?", o:["Corporation","Partnership","Sole proprietorship"], a:2},
+ {q:"Accounting information is expressed in:", o:["Words","Money","Pictures"], a:1},
+ {q:"Which is an internal user?", o:["Customer","Manager","Supplier"], a:1},
+ {q:"Bookkeeping is part of accounting.", o:["True","False"], a:0},
+ {q:"Which is NOT a business activity?", o:["Selling goods","Buying supplies","Personal shopping"], a:2},
+ {q:"Accounting follows rules called:", o:["Policies","Standards","Principles"], a:2},
+ {q:"Which is a service business?", o:["Sari-sari store","Salon","Trading company"], a:1}
+],
+12: [
+ {q:"Basic accounting equation is:", o:["A = L + E","A = I - E","A + E = L"], a:0},
+ {q:"Cash is classified as:", o:["Asset","Liability","Equity"], a:0},
+ {q:"Accounts Payable is a:", o:["Asset","Liability","Expense"], a:1},
+ {q:"Owner’s investment increases:", o:["Assets & Equity","Assets & Liabilities","Expenses"], a:0},
+ {q:"Which normally has a debit balance?", o:["Revenue","Capital","Assets"], a:2},
+ {q:"Withdrawal by owner decreases:", o:["Assets","Equity","Liabilities"], a:1},
+ {q:"Which is an expense?", o:["Rent","Cash","Accounts Receivable"], a:0},
+ {q:"Revenue increases:", o:["Assets","Liabilities","Equity"], a:2},
+ {q:"Purchasing supplies on credit increases:", o:["Assets & Liabilities","Assets only","Equity"], a:0},
+ {q:"Which account is affected by profit?", o:["Assets","Capital","Liabilities"], a:1}
+]
+};
+
+document.getElementById("level").addEventListener("change", renderQuiz);
+
+function renderQuiz() {
+ const level = document.getElementById("level").value;
+ const quizDiv = document.getElementById("quiz");
+ quizDiv.innerHTML = "";
+ if (!level) return;
+
+ quizData[level].forEach((item, i) => {
+  quizDiv.innerHTML += `
+   <div class="question">${i+1}. ${item.q}</div>
+   <div class="options">
+    ${item.o.map((opt,j)=>`
+     <label>
+      <input type="radio" name="q${i}" value="${j}"> ${opt}
+     </label>`).join("")}
+   </div>`;
+ });
+}
+
+function submitQuiz() {
+ const name = studentName.value.trim();
+ const section = document.getElementById("section").value.trim();
+ const level = document.getElementById("level").value;
+ if(!name || !section || !level){
+  alert("Please complete all fields.");
+  return;
+ }
+
+ let score = 0;
+ quizData[level].forEach((item,i)=>{
+  const ans = document.querySelector(`input[name="q${i}"]:checked`);
+  if(ans && parseInt(ans.value) === item.a) score++;
+ });
+
+ const record = {
+  name, section, level,
+  score: score + "/10",
+  date: new Date().toLocaleString()
+ };
+
+ let records = JSON.parse(localStorage.getItem("fabmResults")) || [];
+ records.push(record);
+ localStorage.setItem("fabmResults", JSON.stringify(records));
+
+ document.getElementById("result").innerHTML =
+ `<h2>Score: ${score}/10</h2><p>Saved successfully!</p>`;
+}
+</script>
+
+</body>
+</html>
